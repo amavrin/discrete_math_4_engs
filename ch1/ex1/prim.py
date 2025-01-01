@@ -59,11 +59,11 @@ def push_neighs(connected, graph, pq):
 
 def find_minimal(graph):
     pq = []
-    connected = []
+    connected = set()
     minimal = []
     total_weight = 0
     seed = random.choice(graph['nodes'])
-    connected.append(seed)
+    connected.add(seed)
     push_neighs(connected, graph, pq)
 
     while len(pq):
@@ -71,7 +71,7 @@ def find_minimal(graph):
         peer = edge[1]
         if peer in connected:
             continue
-        connected.append(peer)
+        connected.add(peer)
         minimal.append(edge)
         total_weight += least_weight
         push_neighs(connected, graph, pq)

@@ -2,6 +2,7 @@ import random
 import yaml
 import heapq
 
+
 def read_graph(file):
     try:
         with open(file, 'r') as f:
@@ -11,22 +12,23 @@ def read_graph(file):
         print(f"cannot open {file}:", e)
         return None
 
+
 def check_graph_symmetric(graph):
     for node1 in graph['nodes']:
         for node2 in graph['nodes']:
-            try:
-                assert (node1 in graph['edges'][node2]) == (node2 in graph['edges'][node1])
-            except:
-                print(f"assertion failed for {node1} and {node2}")
+            node1_peers = graph['edges'][node1]
+            node2_peers = graph['edges'][node2]
+            if (node1 in node2_peers) != (node2 in node1_peers):
+                print(f"peers for {node1} {node1_peers} and {node2} {node2_peers} do not match")
                 return False
-            if node1 not in graph['edges'][node2]:
+            if node1 not in node2_peers:
                 continue
-            try:
-                assert graph['edges'][node2][node1] == graph['edges'][node1][node2]
-            except:
-                print(f"edges not equal for {node1} and {node2}")
+            if node2_peers[node1] != node1_peers[node2]:
+                print(f"edge weights are not equal for {node1}-{node2} ({node1_peers[node2]})",
+                        f"and {node2}-{node1} ({node2_peers[node1]})")
                 return False
     return True
+
 
 def push_neighs(connected, graph, pq):
     for node in connected:
@@ -37,6 +39,8 @@ def push_neighs(connected, graph, pq):
             weight = graph['edges'][node][peer]
             edge = (node, peer)
             heapq.heappush(pq, (weight, edge))
+
+
 def find_minimal(graph):
     pq = []
     connected = []
@@ -58,9 +62,14 @@ def find_minimal(graph):
     return total_weight, minimal
 
 
-graph = read_graph("graph.yaml")
-if graph is None:
-    exit(1)
-check_graph_symmetric(graph)
-weight, minimal = find_minimal(graph)
-assert(weight == 14)
+def main(file):
+    graph = read_graph(file)
+    if graph is None:
+        exit(1)
+    check_graph_symmetric(graph)
+    weight, minimal = find_minimal(graph)
+    assert(weight == 14)
+
+
+if __name__ == "__main__":
+    main("graph.yaml")

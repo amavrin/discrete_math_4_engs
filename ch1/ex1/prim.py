@@ -66,6 +66,12 @@ def main(file):
     graph = read_graph(file)
     if graph is None:
         exit(1)
+    if 'nodes' not in graph:
+        print("nodes not in graph")
+        exit(1)
+    if 'edges' not in graph:
+        print("edges not in graph")
+        exit(1)
     check_graph_symmetric(graph)
     weight, minimal = find_minimal(graph)
     assert(weight == 14)

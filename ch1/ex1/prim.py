@@ -48,8 +48,7 @@ def check_graph_symmetric(graph):
 
 def push_neighs(connected, graph, pq):
     for node in connected:
-        peers = list(graph['edges'][node])
-        for peer in peers:
+        for peer, weight in graph['edges'][node].items():
             if peer in connected:
                 continue
             weight = graph['edges'][node][peer]

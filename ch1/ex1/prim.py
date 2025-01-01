@@ -2,6 +2,7 @@ import random
 import yaml
 import heapq
 import logging
+import argparse
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -87,4 +88,8 @@ def main(file):
 
 
 if __name__ == "__main__":
-    main("graph.yaml")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-g', '--graph', default="graph.yaml", help='input graph')
+    args = parser.parse_args()
+    graph_file = args.graph
+    main(graph_file)

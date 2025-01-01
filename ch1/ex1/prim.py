@@ -14,6 +14,14 @@ def read_graph(file):
 
 
 def check_graph_symmetric(graph):
+    if graph is None:
+        return False
+    if 'nodes' not in graph:
+        print("nodes not in graph")
+        return False
+    if 'edges' not in graph:
+        print("edges not in graph")
+        return False
     for node1 in graph['nodes']:
         for node2 in graph['nodes']:
             node1_peers = graph['edges'][node1]
@@ -64,15 +72,9 @@ def find_minimal(graph):
 
 def main(file):
     graph = read_graph(file)
-    if graph is None:
+    if not check_graph_symmetric(graph):
+        print("graph is invalid or not symmetric")
         exit(1)
-    if 'nodes' not in graph:
-        print("nodes not in graph")
-        exit(1)
-    if 'edges' not in graph:
-        print("edges not in graph")
-        exit(1)
-    check_graph_symmetric(graph)
     weight, minimal = find_minimal(graph)
     assert(weight == 14)
 

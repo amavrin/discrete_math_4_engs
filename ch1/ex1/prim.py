@@ -1,12 +1,15 @@
 import random
-
 import yaml
-
+import heapq
 
 def read_graph(file):
-    with open(file, 'r') as f:
-        graph = yaml.safe_load(f)
-    return graph
+    try:
+        with open(file, 'r') as f:
+            graph = yaml.safe_load(f)
+        return graph
+    except Exception as e:
+        print(f"cannot open {file}:", e)
+        return None
 
 def check_graph_symmetric(graph):
     for node1 in graph['nodes']:
@@ -15,43 +18,49 @@ def check_graph_symmetric(graph):
                 assert (node1 in graph['edges'][node2]) == (node2 in graph['edges'][node1])
             except:
                 print(f"assertion failed for {node1} and {node2}")
+                return False
             if node1 not in graph['edges'][node2]:
                 continue
             try:
                 assert graph['edges'][node2][node1] == graph['edges'][node1][node2]
             except:
                 print(f"edges not equal for {node1} and {node2}")
+                return False
+    return True
 
-def find_neighs(connected, graph):
-    neighs = dict()
+def push_neighs(connected, graph, pq):
     for node in connected:
         peers = list(graph['edges'][node])
         for peer in peers:
             if peer in connected:
                 continue
             weight = graph['edges'][node][peer]
-            neighs[(node, peer)] = weight
-    return neighs
-
+            edge = (node, peer)
+            heapq.heappush(pq, (weight, edge))
 def find_minimal(graph):
+    pq = []
     connected = []
     minimal = []
     total_weight = 0
     seed = random.choice(graph['nodes'])
     connected.append(seed)
-    current = seed
-    while len(connected) < len(graph['nodes']):
-        paths = find_neighs(connected, graph)
-        sorted_paths = dict(sorted(paths.items(), key=lambda item: item[1]))
+    push_neighs(connected, graph, pq)
 
-        edge = list(sorted_paths.items())[0]
-        connected.append(edge[0][1])
-        minimal.append(edge[0])
-        total_weight += edge[1]
+    while len(pq):
+        least_weight, edge = heapq.heappop(pq)
+        peer = edge[1]
+        if peer in connected:
+            continue
+        connected.append(peer)
+        minimal.append(edge)
+        total_weight += least_weight
+        push_neighs(connected, graph, pq)
     return total_weight, minimal
 
 
 graph = read_graph("graph.yaml")
+if graph is None:
+    exit(1)
 check_graph_symmetric(graph)
 weight, minimal = find_minimal(graph)
-print(weight, minimal)
+assert(weight == 14)
